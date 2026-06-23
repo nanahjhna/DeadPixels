@@ -1,0 +1,75 @@
+# -------------------------------------------------------------------
+# Miscellaneous & OS generated files
+# -------------------------------------------------------------------
+*.class
+*.log
+*.pyc
+*.swp
+*.sw?
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+Thumbs.db
+.metadata
+
+# -------------------------------------------------------------------
+# 🔥 Visual Studio & Local Database Caches (추가됨)
+# -------------------------------------------------------------------
+# 프로젝트 내부에 생성된 비주얼 스튜디오 인덱스 및 임시 파일들을 완벽히 차단합니다.
+*.vsidx
+*.db
+*.sqlite
+.wsuo
+DocumentLayout.json
+VSWorkspaceState.json
+ProjectSettings.json
+
+# -------------------------------------------------------------------
+# IDEs and Editors settings
+# -------------------------------------------------------------------
+# IntelliJ / Android Studio related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# VS Code related
+.vscode/
+
+# -------------------------------------------------------------------
+# Flutter / Dart / Pub packages dependencies
+# -------------------------------------------------------------------
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/build/
+/coverage/
+
+# -------------------------------------------------------------------
+# Web Build outputs
+# -------------------------------------------------------------------
+build/web/
+.upstream-dependencies
+
+# -------------------------------------------------------------------
+# Symbolication & Obfuscation related
+# -------------------------------------------------------------------
+app.*.symbols
+app.*.map.json
+
+# -------------------------------------------------------------------
+# Android Studio build artifacts
+# -------------------------------------------------------------------
+/android/app/debug
+/android/app/profile
+/android/app/release
