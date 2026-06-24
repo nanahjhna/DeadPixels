@@ -18,10 +18,12 @@ class SkillOverlay extends StatelessWidget {
           backgroundColor: Colors.transparent,
           body: Stack(
             children: [
+              // 💡 하단 중앙 정렬을 위한 설정
               Align(
-                alignment: Alignment.bottomLeft,
+                alignment: Alignment.bottomCenter,
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 60.0, bottom: 20.0),
+                  // 하단에서 30.0만큼 띄우기 (원하시는 만큼 숫자 조절 가능)
+                  padding: const EdgeInsets.only(bottom: 30.0),
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                     decoration: BoxDecoration(
@@ -30,7 +32,7 @@ class SkillOverlay extends StatelessWidget {
                       border: Border.all(color: Colors.white.withOpacity(0.3), width: 2),
                     ),
                     child: Row(
-                      mainAxisSize: MainAxisSize.min,
+                      mainAxisSize: MainAxisSize.min, // Row 크기를 내용물에 맞춤
                       children: [
                         _buildSkillCard('Q', '속사', Colors.orangeAccent, player, 1),
                         const SizedBox(width: 10),

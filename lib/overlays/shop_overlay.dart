@@ -19,7 +19,7 @@ class ShopOverlay extends StatelessWidget {
             child: Padding(
               // 2. bottom 마진을 키워 스킬 UI가 위치할 공간(예: 120~150px) 확보
               // 3. 좌우 여백을 주어 중앙에 배치
-              padding: const EdgeInsets.only(bottom: 100.0, left: 20.0, right: 20.0),
+              padding: const EdgeInsets.only(bottom: 110.0, left: 20.0, right: 20.0),
               child: Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
@@ -57,7 +57,7 @@ class ShopOverlay extends StatelessWidget {
         onTap: canAfford ? () => game.buyTowerUpgrade(type) : null,
         child: Container(
           width: 52,
-          height: 52,
+          height: 42,
           decoration: BoxDecoration(
             color: const Color(0xFF333333),
             borderRadius: BorderRadius.circular(6),

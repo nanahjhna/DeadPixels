@@ -11,7 +11,7 @@ class ZombieNormal extends Enemy {
     speed: 65.0,
     damage: 15.0,
     goldReward: 12,
-    expReward: 8,
+    expReward: 58,
   ) {
     size = Vector2(24, 24);
   }

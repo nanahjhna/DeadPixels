@@ -10,8 +10,8 @@ class Player extends PositionComponent with HasGameRef<DeadPixelsGame>, Keyboard
   Vector2 velocity = Vector2.zero();
   double baseSpeed = 160.0;
 
-  // 게임의 메인 레벨을 담당
-  int level = 1;
+  // 💡 getter를 사용하여 항상 게임 매니저의 최신 레벨을 가져옴
+  int get level => gameRef.playerLevel;
 
   final Map<String, double> _skillCooldowns = {'Q': 0.0, 'W': 0.0, 'E': 0.0, 'R': 0.0};
   final Map<String, double> _maxCooldowns = {'Q': 0.4, 'W': 3.5, 'E': 2.0, 'R': 12.0};
@@ -25,9 +25,10 @@ class Player extends PositionComponent with HasGameRef<DeadPixelsGame>, Keyboard
     anchor = Anchor.center;
   }
 
-// 레벨업 시 호출: UI 갱신 신호(notifyListeners) 전송
+// 3. addLevel 함수는 삭제하거나, 아래처럼 매니저를 호출하게 변경
   void addLevel() {
-    level++;
+    // Player가 직접 ++하지 말고, 게임 매니저에게 명령을 내립니다.
+    gameRef.playerLevel++;
     gameRef.notifyListeners();
   }
 
@@ -63,16 +64,29 @@ class Player extends PositionComponent with HasGameRef<DeadPixelsGame>, Keyboard
 
   void useSkill(String skillType) {
     int required = _reqLevels[skillType] ?? 99;
-    if (level < required) return; // 레벨 미달 시 무시
-    if (_skillCooldowns[skillType]! > 0) return;
 
+    // 이제 여기서 참조하는 level은 항상 gameRef.playerLevel입니다.
+    if (level < required) {
+      debugPrint("❌ 레벨 부족! (플레이어 레벨: $level, 필요 레벨: $required)");
+      return;
+    }
+    if (_skillCooldowns[skillType]! > 0) {
+      print("⏳ 스킬 $skillType 발동 실패: 쿨타임 중 (${_skillCooldowns[skillType]!.toStringAsFixed(1)}초 남음)");
+      return;
+    }
+
+    // 쿨타임 적용
     _skillCooldowns[skillType] = _maxCooldowns[skillType]!;
+
+    // 💡 스킬 발동 로그
+    print("🚀 스킬 $skillType 발동 성공!");
 
     switch (skillType) {
       case 'Q': _executeSkillQ(); break;
       case 'W': _executeSkillW(); break;
       case 'E': _executeSkillE(); break;
       case 'R': _executeSkillR(); break;
+      default: print("⚠️ 알 수 없는 스킬 타입: $skillType"); break;
     }
   }
 
