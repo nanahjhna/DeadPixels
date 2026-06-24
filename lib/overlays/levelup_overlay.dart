@@ -10,10 +10,11 @@ class LevelUpOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: Colors.black87,
-      child: Center(
+      // 💡 화면이 좁을 경우를 대비해 SingleChildScrollView 추가
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
               '🎉 LEVEL UP! 🎉',
@@ -25,67 +26,47 @@ class LevelUpOverlay extends StatelessWidget {
               style: TextStyle(color: Colors.white70, fontSize: 14),
             ),
             const SizedBox(height: 32),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildCard(context, '🏃 무빙 강화', '아빠의 이동 속도가 15% 증가합니다.', () {
-                  print('선택: 이속 증가');
-                  game.resumeGameAfterLevelUp();
-                }),
-                const SizedBox(width: 16),
-                _buildCard(context, '⚔️ 격투 술사', '기본 평타 공격 속도가 20% 빨라집니다.', () {
-                  print('선택: 공속 증가');
-                  game.resumeGameAfterLevelUp();
-                }),
-                const SizedBox(width: 16),
-                _buildCard(context, '🎒 보급 장인', '라운드 종료 시 획득하는 골드가 25% 늘어납니다.', () {
-                  print('선택: 골드 보너스');
-                  game.resumeGameAfterLevelUp();
-                }),
-              ],
-            ),
+
+            // 💡 Row 대신 Column을 사용하여 카드를 세로로 배치
+            _buildCard(context, '🏃 무빙 강화', '아빠의 이동 속도가 15% 증가합니다.', () => game.resumeGameAfterLevelUp()),
+            const SizedBox(height: 16),
+            _buildCard(context, '⚔️ 격투 술사', '기본 평타 공격 속도가 20% 빨라집니다.', () => game.resumeGameAfterLevelUp()),
+            const SizedBox(height: 16),
+            _buildCard(context, '🎒 보급 장인', '라운드 종료 시 획득하는 골드가 25% 늘어납니다.', () => game.resumeGameAfterLevelUp()),
           ],
         ),
       ),
     );
   }
 
+// 💡 _buildCard의 width를 화면 전체 대비 상대값으로 변경
   Widget _buildCard(BuildContext context, String title, String desc, VoidCallback onTap) {
     return SizedBox(
-      width: 180,
-      height: 220,
+      width: double.infinity, // 화면 가로를 꽉 채움
+      height: 140, // 세로 길이를 살짝 줄여서 한 화면에 다 보이게 함
       child: Card(
         color: const Color(0xFF2A2A2A),
-        elevation: 8,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: Colors.greenAccent, width: 1.5),
-        ),
+        // ... (기존 style 동일)
         child: InkWell(
-          borderRadius: BorderRadius.circular(12),
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: Row( // 💡 카드 내부도 Row로 바꿔서 옆으로 텍스트+버튼 배치
               children: [
-                Text(
-                  title,
-                  style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                ),
-                Text(
-                  desc,
-                  style: const TextStyle(color: Colors.white60, fontSize: 12),
-                  textAlign: TextAlign.center,
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(title, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 4),
+                      Text(desc, style: const TextStyle(color: Colors.white60, fontSize: 12)),
+                    ],
+                  ),
                 ),
                 ElevatedButton(
                   onPressed: onTap,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.greenAccent,
-                    foregroundColor: Colors.black,
-                  ),
-                  child: const Text('선택', style: TextStyle(fontWeight: FontWeight.bold)),
+                  child: const Text('선택'),
                 )
               ],
             ),

@@ -28,21 +28,22 @@ class DeadPixelsGame extends FlameGame with HasKeyboardHandlerComponents, HasCol
   @override
   Future<void> onLoad() async {
     super.onLoad();
+
     images.prefix = 'assets/images/';
     _inputManager = InputManager(this);
 
-    // 기지 및 캐릭터 생성 배치
+    // 💡 기지 배치: 화면 중앙보다 약간 위쪽 (size.y * 0.4)
     daughterBase = DaughterBase();
-    daughterBase.position = Vector2(size.x / 2, size.y / 2);
+    daughterBase.position = Vector2(size.x / 2, size.y * 0.4);
     add(daughterBase);
 
+    // 💡 플레이어 배치: 기지 바로 아래 (기지 y좌표 + 기지 높이 + 여백)
     final player = Player();
-    player.position = Vector2(size.x / 2, size.y / 2 + 80);
+    player.position = Vector2(size.x / 2, daughterBase.position.y + 100);
     add(player);
 
     add(EnemySpawner());
 
-    // 🔥 [수정] 인게임에 필요한 기본 UI 레이어들을 '동시에' 싹 다 화면에 띄웁니다!
     overlays.addAll(['HUD', 'Shop', 'SkillUI']);
   }
 
@@ -113,13 +114,10 @@ class DeadPixelsGame extends FlameGame with HasKeyboardHandlerComponents, HasCol
     if (isSuccess) {
       notifyListeners();
 
-      // 화면 정중앙 좌표
-      final Vector2 centerPosition = size / 2; // game.size 대신 바로 size 사용 가능
+      // 💡 화면 중앙이 아닌, 기지 머리 위 30픽셀 지점에 생성
+      final Vector2 messagePosition = daughterBase.position + Vector2(0, -daughterBase.size.y / 2 - 30);
 
-      // FloatingText는 이제 스스로 gameRef를 찾아 동작합니다.
-      add(FloatingText(message, centerPosition + Vector2(0, -100)));
-
-      print("$type 성공: $message");
+      add(FloatingText(message, messagePosition));
     }
   }
 

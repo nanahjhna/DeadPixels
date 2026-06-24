@@ -14,20 +14,22 @@ class ShopOverlay extends StatelessWidget {
         return Scaffold(
           backgroundColor: Colors.transparent,
           body: Align(
-            alignment: Alignment.bottomRight,
+            // 1. 하단 중앙으로 변경
+            alignment: Alignment.bottomCenter,
             child: Padding(
-              padding: const EdgeInsets.only(right: 60.0, bottom: 20.0),
+              // 2. bottom 마진을 키워 스킬 UI가 위치할 공간(예: 120~150px) 확보
+              // 3. 좌우 여백을 주어 중앙에 배치
+              padding: const EdgeInsets.only(bottom: 100.0, left: 20.0, right: 20.0),
               child: Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: const Color(0xFF1A1A1A).withOpacity(0.85),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12), // 둥근 정도를 조금 더 키우면 예쁩니다
                   border: Border.all(color: Colors.white.withOpacity(0.3), width: 2),
                 ),
                 child: Row(
-                  mainAxisSize: MainAxisSize.min,
+                  mainAxisSize: MainAxisSize.min, // 버튼 크기에 딱 맞게 조절
                   children: [
-                    // 🔥 이제 골드 비용을 정수로 넘겨줍니다.
                     _buildShopButton('1', '포탑', 100, 'turret'),
                     const SizedBox(width: 10),
                     _buildShopButton('2', '오라', 100, 'aura'),
