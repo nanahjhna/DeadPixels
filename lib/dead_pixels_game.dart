@@ -6,10 +6,12 @@ import 'package:flutter/material.dart';
 import 'components/player.dart';
 import 'components/enemy_spawner.dart';
 import 'components/daughter_base.dart';
+import 'components/floating_text.dart';
 import 'managers/input_manager.dart';
 import 'overlays/skill_overlay.dart'; // 🔥 스킬 오버레이 임포트 추가
 
 class DeadPixelsGame extends FlameGame with HasKeyboardHandlerComponents, HasCollisionDetection, ChangeNotifier {
+
   double gameTime = 120.0;
   int playerGold = 0;
   int playerLevel = 1;
@@ -78,17 +80,46 @@ class DeadPixelsGame extends FlameGame with HasKeyboardHandlerComponents, HasCol
 
   // 상점 기지 업그레이드 비즈니스 로직
   void buyTowerUpgrade(String type) {
+    bool isSuccess = false;
+    int cost = 0;
+    String message = "";
+
+    // 1. 타입별 로직 분기
     if (type == 'repair') {
-      if (playerGold >= 50) {
-        playerGold -= 50;
+      cost = 50;
+      if (playerGold >= cost) {
+        playerGold -= cost;
         daughterBase.currentHp = (daughterBase.currentHp + 100).clamp(0.0, daughterBase.maxHp);
-        notifyListeners();
+        message = "기지 수리 완료! (+100HP)";
+        isSuccess = true;
       }
-    } else {
-      if (playerGold >= 100) {
-        playerGold -= 100;
-        notifyListeners();
+    } else if (type == 'turret') {
+      cost = 100;
+      if (playerGold >= cost) {
+        playerGold -= cost;
+        message = "포탑 업그레이드 완료!";
+        isSuccess = true;
       }
+    } else if (type == 'aura') {
+      cost = 100;
+      if (playerGold >= cost) {
+        playerGold -= cost;
+        message = "오라 강화 완료!";
+        isSuccess = true;
+      }
+    }
+
+    // 2. 성공 시 메시지 출력
+    if (isSuccess) {
+      notifyListeners();
+
+      // 화면 정중앙 좌표
+      final Vector2 centerPosition = size / 2; // game.size 대신 바로 size 사용 가능
+
+      // FloatingText는 이제 스스로 gameRef를 찾아 동작합니다.
+      add(FloatingText(message, centerPosition + Vector2(0, -100)));
+
+      print("$type 성공: $message");
     }
   }
 
@@ -103,10 +134,13 @@ class DeadPixelsGame extends FlameGame with HasKeyboardHandlerComponents, HasCol
   void resumeGameAfterLevelUp() {
     isGamePaused = false;
     overlays.remove('LevelUp');
-    playerLevel++;
+
+    playerLevel++; // 👈 여기서 직접 올림
+    print("🎯 게임 매니저 레벨업: $playerLevel");
+
     playerExp = 0;
     maxExp = (maxExp * 1.4).toInt();
-    notifyListeners();
+    notifyListeners(); // 👈 여기서 UI 갱신 신호를 보냄
   }
 
   void _triggerVictory() {
