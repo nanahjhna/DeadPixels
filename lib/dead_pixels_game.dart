@@ -94,14 +94,20 @@ class DeadPixelsGame extends FlameGame with HasKeyboardHandlerComponents, HasCol
         message = "기지 수리 완료! (+100HP)";
         isSuccess = true;
       }
-    } else if (type == 'turret') {
-      cost = 100;
+    }
+    else if (type == 'turret') {
+      cost = 1;
       if (playerGold >= cost) {
         playerGold -= cost;
+
+        // 💡 수정된 부분: 기지의 업그레이드 메서드 호출
+        daughterBase.upgradeMissileCount();
+
         message = "포탑 업그레이드 완료!";
         isSuccess = true;
       }
-    } else if (type == 'aura') {
+    }
+    else if (type == 'aura') {
       cost = 100;
       if (playerGold >= cost) {
         playerGold -= cost;
@@ -110,14 +116,15 @@ class DeadPixelsGame extends FlameGame with HasKeyboardHandlerComponents, HasCol
       }
     }
 
-    // 2. 성공 시 메시지 출력
+    // 2. 결과 처리
     if (isSuccess) {
-      notifyListeners();
+      notifyListeners(); // UI 갱신 (골드, 포탑 개수 등)
 
-      // 💡 화면 중앙이 아닌, 기지 머리 위 30픽셀 지점에 생성
+      // 메시지 출력
       final Vector2 messagePosition = daughterBase.position + Vector2(0, -daughterBase.size.y / 2 - 30);
-
       add(FloatingText(message, messagePosition));
+    } else {
+      print("❌ 골드 부족 또는 업그레이드 불가");
     }
   }
 

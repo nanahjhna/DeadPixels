@@ -42,10 +42,12 @@ class Projectile extends PositionComponent with HasGameRef<DeadPixelsGame>, Coll
   void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);
 
-    // other가 Enemy인지 명확하게 비교 연산 처리
     if (other is Enemy) {
       other.takeDamage(damage);
-      removeFromParent();
+      // 💡 removeFromParent();  <-- 이 줄을 삭제해야 관통합니다!
+
+      // 만약 적마다 데미지를 한 번씩만 입히고 싶다면,
+      // 해당 적을 '이미 맞은 목록'에 추가하는 로직을 별도로 구현해야 합니다.
     }
   }
 
