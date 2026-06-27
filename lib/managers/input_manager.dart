@@ -10,82 +10,54 @@ class InputManager {
   InputManager(this.game);
 
   KeyEventResult handleKeyEvent(KeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
-    // 1. 키를 누른 순간(KeyDown)과 뗀 순간(KeyUp) 모두 체크하기 위해
-    // 방향키 이동 연속성을 방해하지 않도록 단축키 처리는 KeyDownEvent에서만 필터링합니다.
-    if (event is! KeyDownEvent) {
-      return KeyEventResult.ignored;
-    }
 
-    final key = event.logicalKey;
-
-    // 🚨 2. 레벨업 팝업이 떠서 게임이 일시정지된 상태일 때의 단축키 (카드 선택 1, 2, 3)
+    // 1. 일시정지 상태 처리 (KeyDown 이벤트에서만 단축키 실행)
     if (game.isGamePaused) {
-      if (key == LogicalKeyboardKey.digit1) {
-        _selectLevelUpCard(0);
-        return KeyEventResult.handled;
+      if (event is KeyDownEvent) {
+        if (event.logicalKey == LogicalKeyboardKey.digit1) _selectLevelUpCard(0);
+        else if (event.logicalKey == LogicalKeyboardKey.digit2) _selectLevelUpCard(1);
+        else if (event.logicalKey == LogicalKeyboardKey.digit3) _selectLevelUpCard(2);
       }
-      if (key == LogicalKeyboardKey.digit2) {
-        _selectLevelUpCard(1);
-        return KeyEventResult.handled;
-      }
-      if (key == LogicalKeyboardKey.digit3) {
-        _selectLevelUpCard(2);
-        return KeyEventResult.handled;
-      }
-      return KeyEventResult.handled; // 일시정지 중 다른 키 입력 차단
-    }
-
-    // 3. 인게임 플레이 중 단축키 핸들링
-    // 포탑/오라/바리케이드 업그레이드 단축키 (1, 2, 3)
-    if (key == LogicalKeyboardKey.digit1) {
-      game.buyTowerUpgrade('turret');
-      return KeyEventResult.handled;
-    }
-    if (key == LogicalKeyboardKey.digit2) {
-      game.buyTowerUpgrade('aura');
-      return KeyEventResult.handled;
-    }
-    if (key == LogicalKeyboardKey.digit3) {
-      game.buyTowerUpgrade('repair');
       return KeyEventResult.handled;
     }
 
-    // 4. QWER 액티브 스킬 단축키 연동
-    final player = game.children.whereType<Player>().firstOrNull;
+    // 2. 인게임 단축키 및 이동 처리
+    final player = game.world.children.whereType<Player>().firstOrNull;
+
+    // --- A. 단축키는 KeyDown 일 때만 실행 ---
+    if (event is KeyDownEvent) {
+      final key = event.logicalKey;
+
+      // 업그레이드 단축키
+      if (key == LogicalKeyboardKey.digit1) game.buyTowerUpgrade('turret');
+      else if (key == LogicalKeyboardKey.digit2) game.buyTowerUpgrade('aura');
+      else if (key == LogicalKeyboardKey.digit3) game.buyTowerUpgrade('repair');
+
+      // 스킬 단축키
+      if (player != null) {
+        if (key == LogicalKeyboardKey.keyQ) player.useSkill('Q');
+        else if (key == LogicalKeyboardKey.keyW) player.useSkill('W');
+        else if (key == LogicalKeyboardKey.keyE) player.useSkill('E');
+        else if (key == LogicalKeyboardKey.keyR) player.useSkill('R');
+      }
+    }
+
+    // --- B. 이동 로직은 이벤트 타입과 무관하게 매번 계산 (연속성 보장) ---
     if (player != null) {
-      if (key == LogicalKeyboardKey.keyQ) {
-        player.useSkill('Q');
-        return KeyEventResult.handled;
-      }
-      if (key == LogicalKeyboardKey.keyW) {
-        player.useSkill('W');
-        return KeyEventResult.handled;
-      }
-      if (key == LogicalKeyboardKey.keyE) {
-        player.useSkill('E');
-        return KeyEventResult.handled;
-      }
-      if (key == LogicalKeyboardKey.keyR) {
-        player.useSkill('R');
-        return KeyEventResult.handled;
-      }
+      double x = 0;
+      double y = 0;
+      if (keysPressed.contains(LogicalKeyboardKey.arrowLeft)) x -= 1;
+      if (keysPressed.contains(LogicalKeyboardKey.arrowRight)) x += 1;
+      if (keysPressed.contains(LogicalKeyboardKey.arrowUp)) y -= 1;
+      if (keysPressed.contains(LogicalKeyboardKey.arrowDown)) y += 1;
+
+      player.velocity.setValues(x, y);
     }
 
-    // 방향키(Arrow Keys)는 Player 컴포넌트의 KeyboardHandler가 읽을 수 있도록 통과시킵니다.
-    if (key == LogicalKeyboardKey.arrowUp ||
-        key == LogicalKeyboardKey.arrowDown ||
-        key == LogicalKeyboardKey.arrowLeft ||
-        key == LogicalKeyboardKey.arrowRight) {
-      return KeyEventResult.ignored;
-    }
-
-    return KeyEventResult.ignored;
+    return KeyEventResult.handled;
   }
 
-  /// 1, 2, 3 단축키로 레벨업 카드를 강제 선택하고 게임을 재개시키는 헬퍼 함수
   void _selectLevelUpCard(int index) {
-    print("🎯 [단축키 선택] 레벨업 카드 ${index + 1}번 선택됨!");
-    // 현재 레벨업 화면에 정의된 액션을 호출하고 게임을 재개합니다.
     game.resumeGameAfterLevelUp();
   }
 }

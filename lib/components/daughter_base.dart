@@ -3,28 +3,21 @@ import 'package:flame/collisions.dart';
 import 'package:flutter/material.dart';
 import '../dead_pixels_game.dart';
 import 'enemy.dart';
-import 'projectile.dart'; // 🔥 이 임포트가 누락되어 빨간 줄이 떴습니다!
-import 'dart:math'; // 💡 랜덤 방향 계산을 위해 필수
+import 'projectile.dart';
+import 'dart:math';
 
 class DaughterBase extends PositionComponent with HasGameRef<DeadPixelsGame>, CollisionCallbacks {
   double maxHp = 500.0;
   double currentHp = 500.0;
   double attackTimer = 0.0;
   double attackCooldown = 1.5;
-
-  // 💡 미사일 개수 변수로 변경
   int missileCount = 0;
 
   DaughterBase() {
     size = Vector2(64, 64);
     anchor = Anchor.center;
-  }
-
-  @override
-  void onGameResize(Vector2 size) {
-    super.onGameResize(size);
-    // 화면 크기가 변경될 때마다 정중앙으로 재배치
-    position = size / 2;
+    // 💡 World 시스템에서는 좌표가 고정되므로 생성자에서 위치를 잡아줍니다.
+    position = Vector2(400, 300);
   }
 
   @override
@@ -38,7 +31,6 @@ class DaughterBase extends PositionComponent with HasGameRef<DeadPixelsGame>, Co
     super.update(dt);
     if (gameRef.isGamePaused) return;
 
-    // 미사일이 1개 이상 활성화되어 있을 때만 공격 시도
     if (missileCount > 0) {
       attackTimer += dt;
       if (attackTimer >= attackCooldown) {
@@ -56,33 +48,29 @@ class DaughterBase extends PositionComponent with HasGameRef<DeadPixelsGame>, Co
   }
 
   void _fireAutoTurret() {
-    // 적이 없을 때도 쏘고 싶다면 if (enemies.isEmpty) 조건문을 제거하면 됩니다.
-    // 여기서는 적이 있을 때만 쏘도록 유지하겠습니다.
-    final enemies = gameRef.children.whereType<Enemy>();
+    // 1. world 안의 적들을 찾습니다.
+    final enemies = gameRef.world.children.whereType<Enemy>();
     if (enemies.isEmpty) return;
 
     final random = Random();
 
     for (int i = 0; i < missileCount; i++) {
-      // 1. 화면 끝 지점 중 하나를 랜덤하게 결정 (상, 하, 좌, 우)
-      // 화면 크기를 가져와서 랜덤한 x, y 좌표를 생성합니다.
-      final screenWidth = gameRef.size.x;
-      final screenHeight = gameRef.size.y;
-
+      // 2. 월드 좌표계(800x600) 기준으로 타겟 생성
       final targetPoint = Vector2(
-        random.nextDouble() * screenWidth,
-        random.nextDouble() * screenHeight,
+        random.nextDouble() * 800,
+        random.nextDouble() * 600,
       );
 
-      // 2. 기지 위치에서 랜덤 타겟 지점까지의 방향 벡터 계산
       final direction = (targetPoint - position).normalized();
 
-      // 3. 미사일 발사
-      gameRef.add(Projectile(
+      // 💡 3. 핵심: gameRef.add(X) -> gameRef.world.add(O)
+      // 투사체는 반드시 world에 추가되어야 카메라에 잡힙니다.
+      gameRef.world.add(Projectile(
         position: position.clone(),
         direction: direction,
-        damage: 25.0, // Projectile 클래스에서 충돌 시 removeFromParent()를 하지 않도록 수정해야 관통이 됩니다.
+        damage: 25.0,
       ));
+      print("🚀 미사일 발사! 현재 위치: $position"); // 로그 확인
     }
   }
 

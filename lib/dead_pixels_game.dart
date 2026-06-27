@@ -9,8 +9,16 @@ import 'components/daughter_base.dart';
 import 'components/floating_text.dart';
 import 'managers/input_manager.dart';
 import 'overlays/skill_overlay.dart'; // 🔥 스킬 오버레이 임포트 추가
+import 'package:flame/camera.dart';  // 카메라 시스템을 위해 필수
+import 'package:flame/components.dart'; // World 및 각종 컴포넌트를 위해 필수
 
 class DeadPixelsGame extends FlameGame with HasKeyboardHandlerComponents, HasCollisionDetection, ChangeNotifier {
+  // 1. 월드와 카메라 변수 추가
+  late final World world;
+  late final CameraComponent cameraComponent;
+
+  // 💡 late final 대신 nullable 선언
+  InputManager? _inputManager;
 
   double gameTime = 120.0;
   int playerGold = 0;
@@ -20,7 +28,6 @@ class DeadPixelsGame extends FlameGame with HasKeyboardHandlerComponents, HasCol
 
   bool isGamePaused = false;
 
-  late final InputManager _inputManager;
   late final DaughterBase daughterBase;
 
 // ... 기존 코드 상단 및 변수들 동일 유지 ...
@@ -29,21 +36,33 @@ class DeadPixelsGame extends FlameGame with HasKeyboardHandlerComponents, HasCol
   Future<void> onLoad() async {
     super.onLoad();
 
-    images.prefix = 'assets/images/';
+    // 💡 onLoad 안에서 초기화
     _inputManager = InputManager(this);
 
-    // 💡 수정 후: 화면 정중앙으로 배치
+    // 2. 월드 생성 및 추가
+    world = World();
+    add(world);
+
+    // 3. 카메라 생성 (800x600 고정 해상도 설정)
+    cameraComponent = CameraComponent.withFixedResolution(
+      width: 800,
+      height: 600,
+      world: world,
+    );
+    cameraComponent.viewfinder.anchor = Anchor.center;
+    add(cameraComponent);
+
+    // 카메라 정중앙 위치 고정
+    cameraComponent.viewfinder.position = Vector2(400, 300);
+
+    // 4. 컴포넌트 추가 위치를 world.add로 변경
     daughterBase = DaughterBase();
-    // 초기 배치: 이때 size는 이미 로드된 상태입니다.
-    daughterBase.position = size / 2;
-    add(daughterBase);
+    world.add(daughterBase); // 💡 핵심: game.add 대신 world.add
 
-    // 💡 플레이어 배치: 기지 바로 아래 (기지 y좌표 + 기지 높이 + 여백)
     final player = Player();
-    player.position = daughterBase.position + Vector2(0, 100);
-    add(player);
+    world.add(player);       // 💡 핵심: game.add 대신 world.add
 
-    add(EnemySpawner());
+    world.add(EnemySpawner());
 
     overlays.addAll(['HUD', 'Shop', 'SkillUI']);
   }
@@ -74,7 +93,9 @@ class DeadPixelsGame extends FlameGame with HasKeyboardHandlerComponents, HasCol
 
   @override
   KeyEventResult onKeyEvent(KeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
-    final managedResult = _inputManager.handleKeyEvent(event, keysPressed);
+    // 💡 _inputManager가 null일 경우, KeyEventResult.ignored를 기본값으로 사용
+    final managedResult = _inputManager?.handleKeyEvent(event, keysPressed) ?? KeyEventResult.ignored;
+
     if (managedResult == KeyEventResult.handled) {
       return managedResult;
     }

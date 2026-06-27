@@ -2,38 +2,38 @@ import 'package:flame/components.dart';
 import 'package:flame/collisions.dart';
 import 'package:flutter/material.dart';
 import '../dead_pixels_game.dart';
-import 'enemy.dart'; // 분석기가 이 관계를 명확히 알 수 있도록 확실히 임포트
+import 'enemy.dart';
 
-class Projectile extends PositionComponent with HasGameRef<DeadPixelsGame>, CollisionCallbacks {
-  final Vector2 direction;
+// 💡 1. CollisionCallbacks 믹스인 추가 (필수!)
+class Projectile extends PositionComponent
+    with HasGameRef<DeadPixelsGame>, CollisionCallbacks {
+
+  Vector2 direction;
+  double speed = 300.0;
   final double damage;
-  final double speed = 350.0;
 
-  Projectile({
-    required Vector2 position,
-    required this.direction,
-    required this.damage,
-  }) {
+  // 💡 2. 이미 맞은 적을 기록하여 데미지 중복 방지
+  final Set<Enemy> _hitEnemies = {};
+
+  Projectile({required Vector2 position, required this.direction, required this.damage}) {
     this.position = position;
-    size = Vector2(8, 8);
-    anchor = Anchor.center;
+    this.size = Vector2(8, 8);
+    this.anchor = Anchor.center;
   }
 
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    add(CircleHitbox());
+    // 💡 3. collisionType 설정 (일반적인 투사체는 active)
+    add(CircleHitbox(radius: 4, collisionType: CollisionType.active));
   }
 
   @override
   void update(double dt) {
     super.update(dt);
-    if (gameRef.isGamePaused) return;
-
     position += direction * speed * dt;
 
-    if (position.x < -10 || position.x > gameRef.size.x + 10 ||
-        position.y < -10 || position.y > gameRef.size.y + 10) {
+    if (position.x < -50 || position.x > 850 || position.y < -50 || position.y > 650) {
       removeFromParent();
     }
   }
@@ -42,23 +42,18 @@ class Projectile extends PositionComponent with HasGameRef<DeadPixelsGame>, Coll
   void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);
 
-    if (other is Enemy) {
+    if (other is Enemy && !_hitEnemies.contains(other)) {
       other.takeDamage(damage);
-      // 💡 removeFromParent();  <-- 이 줄을 삭제해야 관통합니다!
+      _hitEnemies.add(other); // 이 적에게는 더 이상 데미지를 입히지 않음
 
-      // 만약 적마다 데미지를 한 번씩만 입히고 싶다면,
-      // 해당 적을 '이미 맞은 목록'에 추가하는 로직을 별도로 구현해야 합니다.
+      // 💡 선택: 관통형 미사일이 아니라면 아래 주석 해제하여 즉시 삭제
+      // removeFromParent();
     }
   }
 
   @override
   void render(Canvas canvas) {
-    super.render(canvas);
-    final bulletPaint = Paint()..color = Colors.yellowAccent;
-    canvas.drawCircle(
-      Offset(size.x / 2, size.y / 2),
-      size.x / 2,
-      bulletPaint,
-    );
+    // 💡 4. render의 좌표계 확인 (Anchor가 center이므로 Offset.zero가 중심)
+    canvas.drawCircle(Offset.zero, 4, Paint()..color = Colors.yellow);
   }
 }
