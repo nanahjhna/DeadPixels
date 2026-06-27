@@ -32,14 +32,15 @@ class DeadPixelsGame extends FlameGame with HasKeyboardHandlerComponents, HasCol
     images.prefix = 'assets/images/';
     _inputManager = InputManager(this);
 
-    // 💡 기지 배치: 화면 중앙보다 약간 위쪽 (size.y * 0.4)
+    // 💡 수정 후: 화면 정중앙으로 배치
     daughterBase = DaughterBase();
-    daughterBase.position = Vector2(size.x / 2, size.y * 0.4);
+    // 초기 배치: 이때 size는 이미 로드된 상태입니다.
+    daughterBase.position = size / 2;
     add(daughterBase);
 
     // 💡 플레이어 배치: 기지 바로 아래 (기지 y좌표 + 기지 높이 + 여백)
     final player = Player();
-    player.position = Vector2(size.x / 2, daughterBase.position.y + 100);
+    player.position = daughterBase.position + Vector2(0, 100);
     add(player);
 
     add(EnemySpawner());
@@ -48,6 +49,7 @@ class DeadPixelsGame extends FlameGame with HasKeyboardHandlerComponents, HasCol
   }
 
 // ... 아래 update 및 LevelUp 처리 로직 생략 (기존대로 유지) ...
+
 
   @override
   void update(double dt) {

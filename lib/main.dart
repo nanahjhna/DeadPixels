@@ -26,29 +26,35 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.black,
       ),
       home: Scaffold(
-        // 💡 SizedBox를 없애고 화면 전체를 차지하게 합니다.
-        body: GameWidget<DeadPixelsGame>(
-          key: const ValueKey('dead_pixels_game_widget'),
-          game: DeadPixelsGame(),
-
-          overlayBuilderMap: {
-            'HUD': (context, game) => Material(
-              color: Colors.transparent,
-              child: HudOverlay(game: game),
+        body: Container(
+          color: Colors.yellow, // 게임 바깥 배경색
+          child: Center(
+            child: AspectRatio(
+              aspectRatio: 4 / 3, // 💡 4:3 비율 강제 고정
+              child: GameWidget<DeadPixelsGame>(
+                key: const ValueKey('dead_pixels_game_widget'),
+                game: DeadPixelsGame(),
+                overlayBuilderMap: {
+                  'HUD': (context, game) => Material(
+                    color: Colors.transparent,
+                    child: HudOverlay(game: game),
+                  ),
+                  'Shop': (context, game) => Material(
+                    color: Colors.transparent,
+                    child: ShopOverlay(game: game),
+                  ),
+                  'LevelUp': (context, game) => Material(
+                    color: Colors.transparent,
+                    child: LevelUpOverlay(game: game),
+                  ),
+                  'SkillUI': (context, game) => Material(
+                    color: Colors.transparent,
+                    child: SkillOverlay(game: game),
+                  ),
+                },
+              ),
             ),
-            'Shop': (context, game) => Material(
-              color: Colors.transparent,
-              child: ShopOverlay(game: game),
-            ),
-            'LevelUp': (context, game) => Material(
-              color: Colors.transparent,
-              child: LevelUpOverlay(game: game),
-            ),
-            'SkillUI': (context, game) => Material(
-              color: Colors.transparent,
-              child: SkillOverlay(game: game),
-            ),
-          },
+          ),
         ),
       ),
     );

@@ -21,6 +21,13 @@ class DaughterBase extends PositionComponent with HasGameRef<DeadPixelsGame>, Co
   }
 
   @override
+  void onGameResize(Vector2 size) {
+    super.onGameResize(size);
+    // 화면 크기가 변경될 때마다 정중앙으로 재배치
+    position = size / 2;
+  }
+
+  @override
   Future<void> onLoad() async {
     await super.onLoad();
     add(RectangleHitbox());
