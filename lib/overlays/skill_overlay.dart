@@ -12,7 +12,7 @@ class SkillOverlay extends StatelessWidget {
     return ListenableBuilder(
       listenable: game,
       builder: (context, child) {
-        final player = game.children.whereType<Player>().firstOrNull;
+        final player = game.world.children.whereType<Player>().firstOrNull;
 
         return Scaffold(
           backgroundColor: Colors.transparent,
@@ -113,18 +113,19 @@ class SkillOverlay extends StatelessWidget {
         ),
         if (isUnlocked && cooldownProgress > 0)
           Positioned.fill(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(6),
-              child: Container(
+            child: Container(
+              decoration: BoxDecoration(
                 color: Colors.black.withOpacity(0.7),
-                child: Center(
-                  child: Text(
-                    cooldownText,
-                    style: const TextStyle(
-                      color: Colors.yellowAccent,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Center(
+                child: Text(
+                  cooldownText,
+                  style: const TextStyle(
+                    color: Colors.yellowAccent,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    shadows: [Shadow(color: Colors.black, blurRadius: 2)],
                   ),
                 ),
               ),

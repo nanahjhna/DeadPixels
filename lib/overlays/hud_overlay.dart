@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../dead_pixels_game.dart';
+import '../components/player.dart'; // Player 클래스 임포트
 
 class HudOverlay extends StatelessWidget {
   final DeadPixelsGame game;
@@ -11,14 +12,19 @@ class HudOverlay extends StatelessWidget {
     return AnimatedBuilder(
       animation: game,
       builder: (context, child) {
+        // 💡 1. Player 찾기 (game.world.children을 통해 찾음)
+        final player = game.world.children.whereType<Player>().firstOrNull;
+
         final minutes = (game.gameTime / 60).floor();
         final seconds = (game.gameTime % 60).floor().toString().padLeft(2, '0');
+
+        // 💡 2. 데이터가 Player 안에 있다면 player? 사용, 없으면 game 참조
+        final level = player?.level ?? game.playerLevel;
         final expProgress = (game.playerExp / game.maxExp).clamp(0.0, 1.0);
 
         return SafeArea(
           child: Padding(
-            // 💡 상단 패딩을 16.0에서 32.0으로 늘려 전체적으로 아래로 내림
-            padding: const EdgeInsets.only(top: 32.0, left: 16.0, right: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32.0),
             child: Stack(
               children: [
                 // 1. 좌측 상단: 레벨 및 경험치 상태바
@@ -29,7 +35,7 @@ class HudOverlay extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'LV. ${game.playerLevel} 아빠',
+                        'LV. ${game.playerLevel} 플레이어',
                         style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                       const SizedBox(height: 4),

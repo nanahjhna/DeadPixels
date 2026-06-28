@@ -27,13 +27,20 @@ abstract class Enemy extends PositionComponent with HasGameRef<DeadPixelsGame>, 
     super.update(dt);
     if (gameRef.isGamePaused) return;
 
-    // 목적지: 맵 정중앙 (대피소 위치 구역)
-    Vector2 target = Vector2(gameRef.size.x / 2, gameRef.size.y / 2);
-    Vector2 moveDirection = target - position;
+    // 💡 1. gameRef.size 대신 world 안의 DaughterBase를 직접 찾습니다.
+    final base = gameRef.world.children.whereType<DaughterBase>().firstOrNull;
 
-    if (moveDirection.length > 10) {
-      moveDirection.normalize();
-      position += moveDirection * speed * dt;
+    if (base != null) {
+      // 💡 2. 기지의 위치를 타겟으로 삼습니다. (화면 크기 무관)
+      Vector2 target = base.position;
+      Vector2 moveDirection = target - position;
+
+      if (moveDirection.length > 5) { // 기지에 거의 다다르면 멈춤
+        moveDirection.normalize();
+        position += moveDirection * speed * dt;
+      }
+    } else {
+      // 기지가 없는 경우(게임 오버 등)에는 멈추거나 기본 행동 수행
     }
   }
 
@@ -46,7 +53,7 @@ abstract class Enemy extends PositionComponent with HasGameRef<DeadPixelsGame>, 
   }
 
   void _die() {
-    // 아빠에게 전리품 자원 지급
+    // 플레이어에게 전리품 자원 지급
     gameRef.playerGold += goldReward;
     gameRef.playerExp += expReward;
 

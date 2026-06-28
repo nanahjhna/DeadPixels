@@ -22,13 +22,13 @@ class LevelUpOverlay extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             const Text(
-              '딸을 지키기 위한 아빠의 능력을 강화하세요.',
+              '딸을 지키기 위한 플레이어의 능력을 강화하세요.',
               style: TextStyle(color: Colors.white70, fontSize: 14),
             ),
             const SizedBox(height: 32),
 
             // 💡 Row 대신 Column을 사용하여 카드를 세로로 배치
-            _buildCard(context, '🏃 무빙 강화', '아빠의 이동 속도가 15% 증가합니다.', () => game.resumeGameAfterLevelUp()),
+            _buildCard(context, '🏃 무빙 강화', '플레이어의 이동 속도가 15% 증가합니다.', () => game.resumeGameAfterLevelUp()),
             const SizedBox(height: 16),
             _buildCard(context, '⚔️ 격투 술사', '기본 평타 공격 속도가 20% 빨라집니다.', () => game.resumeGameAfterLevelUp()),
             const SizedBox(height: 16),
