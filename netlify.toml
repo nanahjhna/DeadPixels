@@ -1,9 +1,10 @@
 [build]
-# 빌드 명령어: Flutter 웹 빌드를 실행합니다.
-command = "flutter config --no-analytics && flutter build web"
-# 빌드 결과물이 생성되는 경로
+command = "flutter build web"
 publish = "build/web"
 
-[build.environment]
-# Netlify가 사용할 Flutter SDK 버전 지정 (3.41.0 이상이어야 합니다)
-FLUTTER_VERSION = "3.24.4"
+[[plugins]]
+package = "netlify-plugin-flutter"
+
+[plugins.inputs]
+# 빌드에 사용할 Flutter 버전
+version = "3.24.4"
